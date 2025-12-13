@@ -1,6 +1,6 @@
 package Entidades;
 
-public class Discount {
+public class DiscountTicket {
 
     private String company;
     private String description;
