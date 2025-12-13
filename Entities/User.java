@@ -12,7 +12,7 @@ public class User {
 
     public User(String name, String password) {
         this.name = name;
-        this.password = password;
+        this.password = password;  // 🔹 unencrypted, as requested
         this.points = 0;
         this.completedActivities = new ArrayList<>();
     }
