@@ -1,4 +1,4 @@
-package Entities;
+package Entidades;
 
 
 public class Activity {
@@ -44,6 +44,3 @@ public class Activity {
         return name + " (" + awardedPoints + " pts)";
     }
 }
-
-
-
