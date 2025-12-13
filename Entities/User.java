@@ -24,6 +24,19 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
+    //Check the veracity of the password in the class itself so as not to expose it
+    public boolean checkPassword(String inputPwd) {
+        return pwd != null && pwd.equals(inputPwd);
+    }
+
+    public ArrayList<Activity> getActivityHist() {
+        return activityHist;
+    }
+
+    public int getWallet() {
+        return wallet;
+    }
+    //fin de getters agregados
 
     public void changePassword() {
         Scanner sc = new Scanner(System.in);
@@ -57,3 +70,6 @@ public class User {
         return name + " - Points: " + wallet;
     }
 }
+
+
+
