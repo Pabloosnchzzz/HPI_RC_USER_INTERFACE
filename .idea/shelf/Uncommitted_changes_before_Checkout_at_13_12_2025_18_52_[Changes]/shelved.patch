@@ -1,0 +1,14 @@
+Index: Entities/DiscountTicket.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Entities;\r\n\r\npublic class DiscountTicket {\r\n\r\n    private String company;\r\n    private String description;\r\n    private int requiredPoints;\r\n\r\n    public DiscountTicket(String company, String description, int requiredPoints) {\r\n        this.company = company;\r\n        this.description = description;\r\n        this.requiredPoints = requiredPoints;\r\n    }\r\n\r\n    // Getters\r\n    public String getCompany() {\r\n        return company;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public int getRequiredPoints() {\r\n        return requiredPoints;\r\n    }\r\n\r\n    // Setters\r\n    public void setCompany(String company) {\r\n        this.company = company;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public void setRequiredPoints(int requiredPoints) {\r\n        this.requiredPoints = requiredPoints;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return company + \" - \" + description + \" (\" + requiredPoints + \" pts)\";\r\n    }\r\n}\r\n\r\n\r\n
+===================================================================
+diff --git a/Entities/DiscountTicket.java b/Entities/DiscountTicket.java
+--- a/Entities/DiscountTicket.java	(revision cafccb4e35c68b6f08e3944c5a95034c8cde9524)
++++ b/Entities/DiscountTicket.java	(date 1765642802591)
+@@ -1,4 +1,4 @@
+-package Entities;
++    package Entities;
+ 
+ public class DiscountTicket {
+ 
