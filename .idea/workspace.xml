@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c5623bb2-24fd-46f8-a412-229fcde6054f" name="Changes" comment="Implementacion en Discount para un uso correcto del main">
-      <change beforePath="$PROJECT_DIR$/Entities/Activity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Entities/AuthManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Entities/AuthManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Entities/DiscountTicket.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Entities/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AppState.java" beforeDir="false" afterPath="$PROJECT_DIR$/Entities/AppState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Entities/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Entities/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Entities/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,13 +32,20 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature/DiscountTicket" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {}
+  "history": [
+    {
+      "state": "OPEN"
+    }
+  ],
+  "lastFilter": {
+    "state": "OPEN"
+  }
 }]]></component>
   <component name="GitToolBoxStore">
     <option name="recentBranches">
@@ -99,7 +106,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/AuthManager",
+    "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
