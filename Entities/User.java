@@ -1,55 +1,57 @@
-package Entities;
+package Entidades;
 
 import java.util.ArrayList;
-import java.util.Scanner;
-import Entities.Activity.java;
-import Entities.DiscountTicket.java;
+import java.util.List;
 
 public class User {
-    private String name;
-    private String email;
-    private String pwd;
-    private ArrayList<Activity> activityHist;
-    private int wallet;
 
-    public User(String name, String email, String pwd) {
+    private String name;
+    private String password;
+    private int points;
+    private List<Activity> completedActivities;
+
+    public User(String name, String password) {
         this.name = name;
-        this.email = email;
-        this.pwd = pwd;
-        this.wallet = 0;
-        this.activityHist = new ArrayList<>();
+        this.password = password;  // 🔹 unencrypted, as requested
+        this.points = 0;
+        this.completedActivities = new ArrayList<>();
     }
 
+    // Getters
     public String getName() {
         return name;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public List<Activity> getCompletedActivities() {
+        return completedActivities;
+    }
+
+    // Setters
     public void setName(String name) {
         this.name = name;
     }
 
-    public void changePassword() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("If you want to change your password, write first your old password: ");
-        String oldPwd = sc.nextLine();
-
-        if (pwd != null && pwd.equals(oldPwd)) {
-            System.out.println("Correct password, please enter the new one: ");
-            String newPwd = sc.nextLine();
-            this.pwd = newPwd;
-        } else {
-            System.out.println("Incorrect password, exiting...");
-        }
+    public void setPassword(String password) {
+        this.password = password;
     }
 
+    // Functionality
     public void addActivity(Activity activity) {
-        activityHist.add(activity);
-        wallet += activity.getAwardedPoints();
+        completedActivities.add(activity);
+        points += activity.getAwardedPoints();
     }
 
-    public boolean buyDiscountTicket(DiscountTicket d) {
-        if (wallet >= d.getRequiredPoints()) {
-            wallet -= d.getRequiredPoints();
+    public boolean redeemPoints(Discount d) {
+        if (points >= d.getRequiredPoints()) {
+            points -= d.getRequiredPoints();
             return true;
         }
         return false;
@@ -57,6 +59,11 @@ public class User {
 
     @Override
     public String toString() {
-        return name + " - Points: " + wallet;
+        return name + " - Points: " + points;
+    }
+
+    // Implementación esperada por Main
+    public String getUsername() {
+        return name;
     }
 }
