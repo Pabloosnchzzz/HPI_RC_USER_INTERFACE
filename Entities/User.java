@@ -1,9 +1,6 @@
 package Entities;
-
 import java.util.ArrayList;
 import java.util.Scanner;
-import Entities.Activity.java;
-import Entities.DiscountTicket.java;
 
 public class User {
     private String name;
