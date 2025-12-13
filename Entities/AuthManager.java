@@ -1,63 +1,29 @@
-package Entities;
+package Entidades;
 
-
-import Entidades.User;
-import java.util.ArrayList;
-import java.util.List;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthManager {
 
-    private List<User> users;
+    private final Map<String, User> users = new HashMap<>();
 
     public AuthManager() {
-        users = new ArrayList<>();
     }
 
-    // Register new user
-    public boolean registerUser(String name, String password) {
-
-        if (findUser(name) != null) {
-            return false; // user already exists
+    // Registra un usuario si no existe (silencioso si ya existe)
+    public boolean registerUser(String username, String password) {
+        if (!users.containsKey(username)) {
+            users.put(username, new User(username, password));
         }
-
-        users.add(new User(name, password));
-        return true;
+        return false;
     }
 
-    // Authenticate login
-    public User login(String name, String password) {
-
-        User u = findUser(name);
-
+    // Devuelve el User si credenciales correctas, o null si falla
+    public User login(String username, String password) {
+        User u = users.get(username);
         if (u != null && u.getPassword().equals(password)) {
             return u;
         }
-
         return null;
-    }
-
-    // Find user by name
-    private User findUser(String name) {
-
-        for (User u : users) {
-            if (u.getName().equalsIgnoreCase(name)) {
-                return u;
-            }
-        }
-
-        return null;
-    }
-
-    // Get list of users (optional)
-    public List<User> getUsers() {
-        return users;
     }
 }
-
-
-
-
-
