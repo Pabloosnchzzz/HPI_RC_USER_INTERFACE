@@ -2,80 +2,105 @@ package Entidades;
 
 import java.util.Scanner;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Main {
+    // Map to track the list of discounts acquired by each user (since User class cannot be modified)
+    private static final Map<User, List<Discount>> ACQUIRED_DISCOUNTS_MAP = new HashMap<>();
+
     public static void main(String[] args) {
-        // --- Inicialización ---
+        // --- Initialization ---
         AuthManager auth = new AuthManager();
         Scanner scanner = new Scanner(System.in);
-        User currentUser = null; // Para almacenar el usuario actual
+        User currentUser = null;
         boolean appRunning = true;
 
-        // ** Simulamos algunos datos iniciales (sin mensajes en consola) **
+        // ** Initial Data Setup (Activities and Discounts) **
+
+        // Standard test users
         auth.registerUser("juan", "1234");
         auth.registerUser("maria", "abcd");
-        auth.registerUser("usuario0", "pass0");
-        auth.registerUser("usuario500", "pass500");
-        auth.registerUser("usuarioInf", "passInf");
+        auth.registerUser("user0", "pass0");
+        auth.registerUser("user500", "pass500");
+        auth.registerUser("userInf", "passInf");
 
-        // Datos para el menú
-        Discount d1 = new Discount("EcoStore", "10% en productos eco", 40);
-        Discount d2 = new Discount("GreenEnergy", "5€ de descuento", 100);
-        Activity act1 = new Activity("Concierto Pop", "Ticket para concierto pop", 50);
-        Activity act2 = new Activity("Teatro Clásico", "Ticket para obra de teatro", 40);
-        Activity act3 = new Activity("Evento Deportivo", "Ticket para partido", 30);
+        // Discount/Ticket items (used for BT option, cost = required points)
+        Discount discount1 = new Discount("Amazon", "20% off Amazon brand X", 50);
+        Discount discount2 = new Discount("Nike", "20% off Nike specific shoe", 40);
+        Discount discount3 = new Discount("LocalStore", "$30 Voucher for Local Store", 30);
 
-        // Ajustes de puntos para los usuarios de ejemplo:
-        User u500 = auth.login("usuario500", "pass500");
+        // Activity items (used for DA option, points awarded, high points for easy testing)
+        // Puntos altos para facilitar el canjeo
+        Activity activity1 = new Activity("Reduce Carbon Footprint", "Complete 10 public transport trips", 100);
+        Activity activity2 = new Activity("Participate in Local Cleanup", "Plant a tree", 70);
+        Activity activity3 = new Activity("Compost Organic Waste", "Participate in a volunteer activity", 90);
+
+
+        // Points adjustments for test users (silent setup):
+        User u500 = auth.login("user500", "pass500");
         if (u500 != null && u500.getPoints() == 0) {
-            u500.addActivity(new Activity("Ajuste Inicial", "Puntos iniciales", 500));
+            u500.addActivity(new Activity("Initial Setup", "Initial points", 500));
         }
-        User uInf = auth.login("usuarioInf", "passInf");
+        User uInf = auth.login("userInf", "passInf");
         if (uInf != null && uInf.getPoints() == 0) {
             try {
-                // Usamos Reflection para establecer puntos altos (simula infinito)
+                // Use Reflection to set high points (simulates infinity)
                 Field pointsField = User.class.getDeclaredField("points");
                 pointsField.setAccessible(true);
-                pointsField.setInt(uInf, 1_000_000); // 1 Millón es suficiente
+                pointsField.setInt(uInf, 1_000_000);
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                // Silencioso
+                // Keep silent if reflection fails
             }
         }
         // *******************************************************
 
 
-        System.out.println("Iniciando aplicación..."); // Mensaje inicial
+        System.out.println("Initializing application...");
 
 
-        // --- Bucle Principal de la Aplicación ---
+        // --- Main Application Loop ---
         while (appRunning) {
 
-            // --- Menú de Autenticación (Cuando NO hay usuario logeado) ---
+            // --- Authentication Menu (When NO user is logged in) ---
             if (currentUser == null) {
-                System.out.print("\nCrea cuenta (CC), Inicia sesión (IS) o Salir (S): ");
+                // Display options clearly
+                System.out.print("\nCreate Account (CA), Login (L) or Exit (S): ");
                 String initialChoice = scanner.nextLine().toUpperCase();
 
                 String username, password;
 
                 switch (initialChoice) {
-                    case "CC":
-                        // Opción: Crear Cuenta
-                        System.out.print("Escribe el nombre de usuario: ");
+                    case "CA":
+                        // Option: Create Account
+                        System.out.print("Enter username: ");
                         username = scanner.nextLine();
-                        System.out.print("Escribe la contraseña: ");
+                        System.out.print("Enter password: ");
                         password = scanner.nextLine();
 
-                        if (auth.login(username, null) == null) {
-                            auth.registerUser(username, password);
-                            System.out.println("¡Cuenta creada con éxito! Por favor, inicia sesión.");
+                        // Try to log in with the new credentials. If successful, user already exists.
+                        if (auth.login(username, password) != null) {
+                            System.out.println("Error: User already exists. Please log in.");
                         } else {
-                            System.out.println("Error: El usuario ya existe.");
+                            // User not found with these credentials. Attempt registration.
+                            auth.registerUser(username, password);
+
+                            // Check if the user was successfully registered (by trying to log in again).
+                            if (auth.login(username, password) != null) {
+                                System.out.println("Account created successfully! Please log in.");
+                            } else {
+                                // If login fails after registration, the username must have existed already with a different password.
+                                System.out.println("Error: Username already in use. Please log in with your existing password or choose a new username.");
+                            }
                         }
+
                         break;
 
-                    case "IS":
-                        // Opción: Iniciar Sesión
-                        System.out.print("nombre de usuario: ");
+                    case "L":
+                        // Option: Login
+                        System.out.print("username: ");
                         username = scanner.nextLine();
                         System.out.print("password: ");
                         password = scanner.nextLine();
@@ -83,141 +108,152 @@ public class Main {
                         currentUser = auth.login(username, password);
 
                         if (currentUser == null) {
-                            System.out.println("Error: Usuario o contraseña incorrectos. Inténtalo de nuevo.");
+                            System.out.println("Error: Incorrect username or password. Try again.");
                         } else {
-                            System.out.println("bienvenido " + currentUser.getUsername() + "! escribe help para ver qué puedes hacer");
+                            System.out.println("Welcome " + currentUser.getName() + "!");
                         }
                         break;
 
                     case "S":
-                        // Opción: Salir completamente de la aplicación
+                        // Option: Exit application completely
                         appRunning = false;
-                        System.out.println("Cerrando aplicación. ¡Hasta pronto!");
+                        System.out.println("Closing application. Goodbye!");
                         break;
 
                     default:
-                        System.out.println("Opción no reconocida. Por favor, escribe 'CC', 'IS' o 'S'.");
+                        System.out.println("Unrecognized option. Please type 'CA', 'L', or 'S'.");
                         break;
                 }
 
             } else {
-                // --- Menú Principal (Cuando SÍ hay usuario logeado) ---
-                System.out.print("\n(Escribe una opción o 'help'): ");
+                // --- Main Menu (When user IS logged in) ---
+
+                // Get the list of acquired discounts for the current user
+                List<Discount> currentUserAcquiredDiscounts = ACQUIRED_DISCOUNTS_MAP.computeIfAbsent(currentUser, k -> new ArrayList<>());
+
+                // Display options directly in the prompt
+                System.out.print("\nView Profile (VP), Consult Wallet (CW), Buy Discount (BT), Do Activity (DA), Logout (S): ");
                 String choice = scanner.nextLine().toUpperCase();
 
                 switch (choice) {
-                    case "HELP":
-                        System.out.println("\"Ver perfil (VP), Consultar Cartera (CC), Comprar Ticket (BT), Hacer Actividad (DA), Cerrar Sesión (S)\"");
-                        break;
-
                     case "VP":
-                        // Ver perfil
-                        System.out.println("\n--- PERFIL DE USUARIO ---");
-                        System.out.println("Usuario: " + currentUser.getName());
-                        System.out.println("Puntos disponibles: " + currentUser.getPoints());
-                        System.out.println("Actividades realizadas: " + currentUser.getCompletedActivities().size());
+                        // View Profile
+                        System.out.println("\n--- USER PROFILE (VP) ---");
+                        System.out.println("User: " + currentUser.getName());
+                        System.out.println("Available Points: " + currentUser.getPoints());
+                        System.out.println("Completed Activities: " + currentUser.getCompletedActivities().size());
                         break;
 
-                    case "CC":
-                        // Consultar Cartera
-                        System.out.println("\n--- CONSULTAR CARTERA ---");
-                        System.out.println("Tienes " + currentUser.getPoints() + " puntos disponibles.");
-                        System.out.println("\nDescuentos disponibles para canjear (Puntos requeridos):");
-                        System.out.println("1. " + d1.getName() + " - " + d1.getDescription() + " (" + d1.getRequiredPoints() + " Pts)");
-                        System.out.println("2. " + d2.getName() + " - " + d2.getDescription() + " (" + d2.getRequiredPoints() + " Pts)");
+                    case "CW":
+                        // Consult Wallet / Redeem Acquired Discounts
+                        System.out.println("\n--- CONSULT WALLET (CW) ---");
+                        System.out.println("You have " + currentUser.getPoints() + " available points.");
 
-                        System.out.print("\n¿Deseas canjear algún descuento? (Introduce número o 'N' para no): ");
-                        String canjeoChoice = scanner.nextLine();
+                        // Show acquired discounts (purchased via BT)
+                        if (currentUserAcquiredDiscounts.isEmpty()) {
+                            System.out.println("\nNo discounts currently acquired to redeem.");
+                        } else {
+                            System.out.println("\nAcquired Discounts Ready to Use (No points cost):");
+                            for (int i = 0; i < currentUserAcquiredDiscounts.size(); i++) {
+                                Discount d = currentUserAcquiredDiscounts.get(i);
+                                System.out.println((i + 1) + ". " + d.getName() + " - " + d.getDescription());
+                            }
 
-                        Discount discountToRedeem = null;
-                        if (canjeoChoice.equals("1")) {
-                            discountToRedeem = d1;
-                        } else if (canjeoChoice.equals("2")) {
-                            discountToRedeem = d2;
-                        }
+                            System.out.print("\nWhich discount do you want to use now? (Enter number or 'N' for no): ");
+                            String useChoice = scanner.nextLine();
 
-                        if (discountToRedeem != null) {
-                            if (currentUser.redeemPoints(discountToRedeem)) {
-                                System.out.println("¡Has canjeado el descuento '" + discountToRedeem.getName() + "'!");
-                                System.out.println("Saldo restante: " + currentUser.getPoints() + " puntos.");
-                            } else {
-                                System.out.println("No tienes suficientes puntos para canjear: " + discountToRedeem.getName());
-                                System.out.println("Puntos requeridos: " + discountToRedeem.getRequiredPoints() + ". Tienes: " + currentUser.getPoints());
+                            if (!useChoice.equalsIgnoreCase("N")) {
+                                try {
+                                    int index = Integer.parseInt(useChoice) - 1;
+                                    if (index >= 0 && index < currentUserAcquiredDiscounts.size()) {
+                                        Discount usedDiscount = currentUserAcquiredDiscounts.remove(index);
+                                        System.out.println("Discount '" + usedDiscount.getName() + "' used successfully! You can apply this benefit now.");
+                                        System.out.println("It has been removed from your wallet.");
+                                    } else {
+                                        System.out.println("Invalid discount number.");
+                                    }
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Invalid input. Please enter a number or 'N'.");
+                                }
                             }
                         }
                         break;
 
                     case "BT":
-                        // Comprar Ticket
-                        System.out.println("\nTickets disponibles:");
-                        System.out.println("1. " + act1.getName() + " - Coste: " + act1.getAwardedPoints() + " puntos");
-                        System.out.println("2. " + act2.getName() + " - Coste: " + act2.getAwardedPoints() + " puntos");
-                        System.out.println("3. " + act3.getName() + " - Coste: " + act3.getAwardedPoints() + " puntos");
-                        System.out.println("Tu saldo actual es de: " + currentUser.getPoints() + " puntos.");
+                        // Buy Ticket / Acquire Discount (Spends points)
+                        System.out.println("\n--- ACQUIRE DISCOUNT (BT - Purchase Points) ---");
+                        System.out.println("Available Discounts to Purchase (Points Cost):");
+                        System.out.println("1. " + discount1.getName() + " - " + discount1.getDescription() + " - Cost: " + discount1.getRequiredPoints() + " points");
+                        System.out.println("2. " + discount2.getName() + " - " + discount2.getDescription() + " - Cost: " + discount2.getRequiredPoints() + " points");
+                        System.out.println("3. " + discount3.getName() + " - " + discount3.getDescription() + " - Cost: " + discount3.getRequiredPoints() + " points");
+                        System.out.println("Your current balance is: " + currentUser.getPoints() + " points.");
 
 
-                        System.out.print("\neliges una (por ejemplo escribiendo un número): ");
-                        String ticketChoice = scanner.nextLine();
+                        System.out.print("\nChoose one to purchase (1, 2, or 3): ");
+                        String purchaseChoice = scanner.nextLine();
 
-                        Activity selectedTicket = null;
-                        if (ticketChoice.equals("1")) {
-                            selectedTicket = act1;
-                        } else if (ticketChoice.equals("2")) {
-                            selectedTicket = act2;
-                        } else if (ticketChoice.equals("3")) {
-                            selectedTicket = act3;
+                        Discount selectedDiscount = null;
+                        if (purchaseChoice.equals("1")) {
+                            selectedDiscount = discount1;
+                        } else if (purchaseChoice.equals("2")) {
+                            selectedDiscount = discount2;
+                        } else if (purchaseChoice.equals("3")) {
+                            selectedDiscount = discount3;
                         }
 
-                        if (selectedTicket != null) {
-                            int cost = selectedTicket.getAwardedPoints();
-                            // Usamos Discount temporal para restar los puntos
-                            Discount costDiscount = new Discount("Compra Ticket", selectedTicket.getName(), cost);
+                        if (selectedDiscount != null) {
+                            int cost = selectedDiscount.getRequiredPoints();
 
-                            if (currentUser.redeemPoints(costDiscount)) {
-                                System.out.println("¡Has comprado 1x " + selectedTicket.getName() + " por " + cost + " puntos!");
-                                System.out.println("Saldo restante: " + currentUser.getPoints() + " puntos.");
-                                System.out.println("¡Gracias!");
+                            if (currentUser.redeemPoints(selectedDiscount)) {
+                                // Purchase successful! Add the acquired discount to the user's list
+                                currentUserAcquiredDiscounts.add(selectedDiscount);
+                                System.out.println("Success! You purchased 1x " + selectedDiscount.getName() + " for " + cost + " points!");
+                                System.out.println("It has been added to your wallet (CW) ready to be used.");
+                                System.out.println("Remaining Balance: " + currentUser.getPoints() + " points.");
                             } else {
-                                System.out.println("Error: No tienes suficientes puntos para comprar este ticket. Coste: " + cost + ". Tienes: " + currentUser.getPoints());
+                                System.out.println("Error: You do not have enough points to purchase this discount. Cost: " + cost + ". You have: " + currentUser.getPoints());
                             }
                         } else {
-                            System.out.println("Opción de ticket no válida.");
+                            System.out.println("Invalid discount option.");
                         }
                         break;
 
                     case "DA":
-                        // Hacer Actividad (ganar puntos)
-                        System.out.println("\n--- HACER ACTIVIDAD ---");
-                        System.out.println("Actividades que te dan puntos:");
-                        System.out.println("1. Donación - Ganas 10 puntos");
-                        System.out.println("2. Rellenar Encuesta - Ganas 5 puntos");
-                        System.out.print("Selecciona una para ganar puntos (1 o 2): ");
+                        // Do Activity (earn points)
+                        System.out.println("\n--- DO ACTIVITY (DA - EARN POINTS) ---");
+                        System.out.println("Eco-Sustainable Activities that award points:");
+                        System.out.println("1. " + activity1.getName() + " - Earns " + activity1.getAwardedPoints() + " points");
+                        System.out.println("2. " + activity2.getName() + " - Earns " + activity2.getAwardedPoints() + " points");
+                        System.out.println("3. " + activity3.getName() + " - Earns " + activity3.getAwardedPoints() + " points");
+                        System.out.print("Select one to earn points (1, 2, or 3): ");
                         String activityChoice = scanner.nextLine();
 
                         Activity earnedActivity = null;
                         if (activityChoice.equals("1")) {
-                            earnedActivity = new Activity("Donación", "Donación a caridad", 10);
+                            earnedActivity = activity1;
                         } else if (activityChoice.equals("2")) {
-                            earnedActivity = new Activity("Encuesta", "Encuesta de opinión", 5);
+                            earnedActivity = activity2;
+                        } else if (activityChoice.equals("3")) {
+                            earnedActivity = activity3;
                         }
 
                         if (earnedActivity != null) {
                             currentUser.addActivity(earnedActivity);
-                            System.out.println("¡Has completado '" + earnedActivity.getName() + "' y has ganado " + earnedActivity.getAwardedPoints() + " puntos!");
-                            System.out.println("Tu nuevo total de puntos es: " + currentUser.getPoints());
+                            System.out.println("You completed '" + earnedActivity.getName() + "' and earned " + earnedActivity.getAwardedPoints() + " points!");
+                            System.out.println("Your new total points is: " + currentUser.getPoints());
                         } else {
-                            System.out.println("Opción de actividad no válida.");
+                            System.out.println("Invalid activity option.");
                         }
                         break;
 
                     case "S":
-                        // Cerrar Sesión (vuelve al menú de autenticación)
-                        System.out.println("Cerrando sesión de " + currentUser.getName() + "...");
+                        // Logout (returns to authentication menu)
+                        System.out.println("Logging out " + currentUser.getName() + "...");
                         currentUser = null;
                         break;
 
                     default:
-                        System.out.println("Opción no reconocida. Escribe 'help' para ver las opciones.");
+                        System.out.println("Unrecognized option. Please use one of the abbreviations: VP, CW, BT, DA, S.");
                         break;
                 }
             }
