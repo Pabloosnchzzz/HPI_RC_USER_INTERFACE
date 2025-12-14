@@ -1,4 +1,4 @@
-package Entities;
+package Entidades;
 
 import java.util.Scanner;
 import java.lang.reflect.Field;
