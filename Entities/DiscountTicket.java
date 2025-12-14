@@ -6,15 +6,10 @@ public class DiscountTicket {
     private String description;
     private int requiredPoints;
 
-    public Discount(String company, String description, int requiredPoints) {
+    public DiscountTicket(String company, String description, int requiredPoints) {
         this.company = company;
         this.description = description;
         this.requiredPoints = requiredPoints;
-    }
-
-    // Nuevo getter esperado por Main
-    public String getName() {
-        return company;
     }
 
     // Getters
@@ -48,3 +43,4 @@ public class DiscountTicket {
         return company + " - " + description + " (" + requiredPoints + " pts)";
     }
 }
+

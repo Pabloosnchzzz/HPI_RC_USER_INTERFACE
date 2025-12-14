@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class Main {
     // Map to track the list of discounts acquired by each user (since User class cannot be modified)
-    private static final Map<User, List<Discount>> ACQUIRED_DISCOUNTS_MAP = new HashMap<>();
+    private static final Map<User, List<DiscountTicket>> ACQUIRED_DISCOUNTS_MAP = new HashMap<>();
 
     public static void main(String[] args) {
         // --- Initialization ---
@@ -28,9 +28,9 @@ public class Main {
         auth.registerUser("userInf", "passInf");
 
         // Discount/Ticket items (used for BT option, cost = required points)
-        Discount discount1 = new Discount("Amazon", "20% off Amazon brand X", 50);
-        Discount discount2 = new Discount("Nike", "20% off Nike specific shoe", 40);
-        Discount discount3 = new Discount("LocalStore", "$30 Voucher for Local Store", 30);
+        DiscountTicket discount1 = new DiscountTicket("Amazon", "20% off Amazon brand X", 50);
+        DiscountTicket discount2 = new DiscountTicket("Nike", "20% off Nike specific shoe", 40);
+        DiscountTicket discount3 = new DiscountTicket("LocalStore", "$30 Voucher for Local Store", 30);
 
         // Activity items (used for DA option, points awarded, high points for easy testing)
         // Puntos altos para facilitar el canjeo
@@ -129,7 +129,7 @@ public class Main {
                 // --- Main Menu (When user IS logged in) ---
 
                 // Get the list of acquired discounts for the current user
-                List<Discount> currentUserAcquiredDiscounts = ACQUIRED_DISCOUNTS_MAP.computeIfAbsent(currentUser, k -> new ArrayList<>());
+                List<DiscountTicket> currentUserAcquiredDiscounts = ACQUIRED_DISCOUNTS_MAP.computeIfAbsent(currentUser, k -> new ArrayList<>());
 
                 // Display options directly in the prompt
                 System.out.print("\nView Profile (VP), Consult Wallet (CW), Buy Discount (BT), Do Activity (DA), Logout (S): ");
@@ -155,8 +155,8 @@ public class Main {
                         } else {
                             System.out.println("\nAcquired Discounts Ready to Use (No points cost):");
                             for (int i = 0; i < currentUserAcquiredDiscounts.size(); i++) {
-                                Discount d = currentUserAcquiredDiscounts.get(i);
-                                System.out.println((i + 1) + ". " + d.getName() + " - " + d.getDescription());
+                                DiscountTicket d = currentUserAcquiredDiscounts.get(i);
+                                System.out.println((i + 1) + ". " + d.getCompany() + " - " + d.getDescription());
                             }
 
                             System.out.print("\nWhich discount do you want to use now? (Enter number or 'N' for no): ");
@@ -166,8 +166,8 @@ public class Main {
                                 try {
                                     int index = Integer.parseInt(useChoice) - 1;
                                     if (index >= 0 && index < currentUserAcquiredDiscounts.size()) {
-                                        Discount usedDiscount = currentUserAcquiredDiscounts.remove(index);
-                                        System.out.println("Discount '" + usedDiscount.getName() + "' used successfully! You can apply this benefit now.");
+                                        DiscountTicket usedDiscount = currentUserAcquiredDiscounts.remove(index);
+                                        System.out.println("Discount '" + usedDiscount.getCompany() + "' used successfully! You can apply this benefit now.");
                                         System.out.println("It has been removed from your wallet.");
                                     } else {
                                         System.out.println("Invalid discount number.");
@@ -183,16 +183,16 @@ public class Main {
                         // Buy Ticket / Acquire Discount (Spends points)
                         System.out.println("\n--- ACQUIRE DISCOUNT (BT - Purchase Points) ---");
                         System.out.println("Available Discounts to Purchase (Points Cost):");
-                        System.out.println("1. " + discount1.getName() + " - " + discount1.getDescription() + " - Cost: " + discount1.getRequiredPoints() + " points");
-                        System.out.println("2. " + discount2.getName() + " - " + discount2.getDescription() + " - Cost: " + discount2.getRequiredPoints() + " points");
-                        System.out.println("3. " + discount3.getName() + " - " + discount3.getDescription() + " - Cost: " + discount3.getRequiredPoints() + " points");
+                        System.out.println("1. " + discount1.getCompany() + " - " + discount1.getDescription() + " - Cost: " + discount1.getRequiredPoints() + " points");
+                        System.out.println("2. " + discount2.getCompany() + " - " + discount2.getDescription() + " - Cost: " + discount2.getRequiredPoints() + " points");
+                        System.out.println("3. " + discount3.getCompany() + " - " + discount3.getDescription() + " - Cost: " + discount3.getRequiredPoints() + " points");
                         System.out.println("Your current balance is: " + currentUser.getPoints() + " points.");
 
 
                         System.out.print("\nChoose one to purchase (1, 2, or 3): ");
                         String purchaseChoice = scanner.nextLine();
 
-                        Discount selectedDiscount = null;
+                        DiscountTicket selectedDiscount = null;
                         if (purchaseChoice.equals("1")) {
                             selectedDiscount = discount1;
                         } else if (purchaseChoice.equals("2")) {
@@ -207,7 +207,7 @@ public class Main {
                             if (currentUser.redeemPoints(selectedDiscount)) {
                                 // Purchase successful! Add the acquired discount to the user's list
                                 currentUserAcquiredDiscounts.add(selectedDiscount);
-                                System.out.println("Success! You purchased 1x " + selectedDiscount.getName() + " for " + cost + " points!");
+                                System.out.println("Success! You purchased 1x " + selectedDiscount.getCompany() + " for " + cost + " points!");
                                 System.out.println("It has been added to your wallet (CW) ready to be used.");
                                 System.out.println("Remaining Balance: " + currentUser.getPoints() + " points.");
                             } else {
